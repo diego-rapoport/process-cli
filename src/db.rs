@@ -75,13 +75,13 @@ impl Db {
     }
 
     pub fn get_all_processes(&self) -> Result<Option<Process>, Error> {
-        let mut processes = self.0.prepare("SELECT id, name, num_steps, steps FROM processes")?;
+        let mut processes = self.0.prepare("SELECT id, name, num_steps FROM processes")?;
 
         let mut process_iter = processes.query_map([], |row| {
             let id = row.get(0)?;
             let name: String = row.get(1)?;
             let num_steps: usize = row.get(2)?;
-            let steps = self.get_steps_from_process(id).unwrap();
+            let steps = self.get_steps_from_process(id)?;
             Ok(Process {
                 id: Some(id),
                 name,
