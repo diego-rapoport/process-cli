@@ -2,7 +2,7 @@
 mod process;
 mod db;
 
-use std::{ffi::OsString, fmt::Result};
+use std::{ffi::OsString, fmt::{Error}};
 use clap::{Parser, Subcommand};
 
 use crate::db::Db;
@@ -37,7 +37,7 @@ enum Commands {
     External(Vec<OsString>),
 }
 
-fn main() -> Result<()> {
+fn main() -> std::result::Result<(), rusqlite::Error> {
     let db = Db::open()?;
     let args = Cli::parse();
 
