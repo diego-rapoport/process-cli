@@ -1,4 +1,4 @@
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Step {
     pub id: Option<usize>,
     pub name: String,
@@ -6,6 +6,7 @@ pub struct Step {
     pub description: String,
 }
 
+#[derive(Debug)]
 pub struct Process {
     pub id: Option<usize>,
     pub name: String,
