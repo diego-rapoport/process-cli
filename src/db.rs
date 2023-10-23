@@ -15,7 +15,7 @@ impl Db {
             CREATE TABLE IF NOT EXISTS processes (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL UNIQUE,
-                num_steps INTEGER NOT NULL,
+                num_steps INTEGER NOT NULL
             );
         ",
             [],
