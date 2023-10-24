@@ -47,3 +47,14 @@ impl Process {
         self.add_step(new_step.to_owned());
     }
 }
+
+#[derive(Debug)]
+pub struct ParsedInfo {
+    pub process_id: usize,
+    pub process_name: String,
+    pub process_num_steps: usize,
+    pub step_id: usize,
+    pub step_name: String,
+    pub step_num: usize,
+    pub step_description: String,
+}
