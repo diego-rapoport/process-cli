@@ -1,8 +1,8 @@
-use rusqlite::{params, Connection, Error, ToSql, config::DbConfig};
+use rusqlite::{config::DbConfig, params, Connection, Error, ToSql};
 
-use crate::step::Step;
-use crate::process::Process;
 use crate::parsed::ParsedInfo;
+use crate::process::Process;
+use crate::step::Step;
 
 #[derive(Debug)]
 pub struct Db(Connection);
@@ -103,9 +103,10 @@ impl Db {
     }
 
     pub fn get_processes_from_id(&self, id: usize) -> Result<Process, Error> {
-        let mut process = self
-            .0
-            .query_row("SELECT id, name, num_steps, is_finished FROM processes WHERE id = :id", params![id], |row| { 
+        let mut process = self.0.query_row(
+            "SELECT id, name, num_steps, is_finished FROM processes WHERE id = :id",
+            params![id],
+            |row| {
                 let id: usize = row.get(0)?;
                 let name: String = row.get(1)?;
                 let num_steps: usize = row.get(2)?;
@@ -118,8 +119,8 @@ impl Db {
                     steps,
                     is_finished,
                 })
-            }
-            )?;
+            },
+        )?;
 
         Ok(process)
     }
@@ -159,5 +160,28 @@ impl Db {
         }
 
         Ok(infos)
+    }
+
+    pub fn update_process(&self, id: usize) -> Result<Process, Error> {
+        let mut process = self.0.query_row(
+            "SELECT id, name, num_steps, is_finished WHERE id = ?1",
+            params![id],
+            |row| {
+                let id = row.get(0)?;
+                let name = row.get(1)?;
+                let num_steps = row.get(2)?;
+                let is_finished = row.get(3)?;
+                let steps = self.get_steps_from_process(id)?;
+                Ok(Process {
+                    id: Some(id),
+                    name,
+                    num_steps,
+                    is_finished,
+                    steps,
+                })
+            },
+        )?;
+
+        Ok(process)
     }
 }
