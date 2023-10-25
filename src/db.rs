@@ -61,7 +61,7 @@ impl Db {
 
     pub fn get_steps_from_process(&self, id: usize) -> Result<Vec<Step>, Error> {
         let mut stmt = self.0.prepare(
-            "SELECT id, name, step_num, description, process_id FROM steps WHERE process_id = :id",
+            "SELECT id, name, step_num, description, process_id, is_done FROM steps WHERE process_id = :id",
         )?;
         let steps_iter = stmt.query_map(&[(":id", &id.to_string())], |row| {
             Ok(Step {
@@ -69,6 +69,7 @@ impl Db {
                 name: row.get(1)?,
                 step_num: row.get(2)?,
                 description: row.get(3)?,
+                is_done: row.get(4)?,
             })
         })?;
 
@@ -83,7 +84,7 @@ impl Db {
     pub fn get_all_steps(&self) -> Result<Vec<Step>, Error> {
         let mut stmt = self
             .0
-            .prepare("SELECT id, name, step_num, description, process_id FROM steps")?;
+            .prepare("SELECT id, name, step_num, description, process_id, is_done FROM steps")?;
 
         let mut vec_steps: Vec<Step> = vec![];
         stmt.query_map([], |row| {
@@ -92,6 +93,7 @@ impl Db {
                 name: row.get(1)?,
                 step_num: row.get(2)?,
                 description: row.get(3)?,
+                is_done: row.get(4)?,
             }))
         })?;
 
@@ -101,16 +103,18 @@ impl Db {
     pub fn get_processes_from_id(&self, id: usize) -> Result<Process, Error> {
         let mut process = self
             .0
-            .query_row("SELECT id, name, num_steps FROM processes WHERE id = :id", params![id], |row| { 
+            .query_row("SELECT id, name, num_steps, is_finished FROM processes WHERE id = :id", params![id], |row| { 
                 let id: usize = row.get(0)?;
                 let name: String = row.get(1)?;
                 let num_steps: usize = row.get(2)?;
                 let steps = self.get_steps_from_process(id)?;
+                let is_finished: bool = row.get(3)?;
                 Ok(Process {
                     id: Some(id),
                     name,
                     num_steps,
                     steps,
+                    is_finished,
                 })
             }
             )?;
@@ -119,26 +123,31 @@ impl Db {
     }
 
     pub fn get_all(&self) -> Result<Vec<ParsedInfo>, Option<Error>> {
-        let mut stmt = self.0.prepare("SELECT processes.id as process_id, processes.name as process_name, processes.num_steps as process_num_steps,
-            steps.id as step_id, steps.name as step_name, steps.step_num as step_num, steps.description as step_description
+        let mut stmt = self.0.prepare("
+            SELECT processes.id as process_id, processes.name as process_name, processes.num_steps as process_num_steps, processes.is_finished as process_finished,
+            steps.id as step_id, steps.name as step_name, steps.step_num as step_num, steps.description as step_description, steps.is_done as step_done
             FROM processes INNER JOIN steps ON processes.id = steps.process_id")?;
 
         let mut info_iter = stmt.query_map([], |row| {
             let process_id = row.get(0)?;
             let process_name = row.get(1)?;
             let process_num_steps = row.get(2)?;
-            let step_id = row.get(3)?;
-            let step_name = row.get(4)?;
-            let step_num = row.get(5)?;
-            let step_description = row.get(6)?;
+            let process_finished = row.get(3)?;
+            let step_id = row.get(4)?;
+            let step_name = row.get(5)?;
+            let step_num = row.get(6)?;
+            let step_description = row.get(7)?;
+            let step_done = row.get(8)?;
             Ok(ParsedInfo {
                 process_id,
                 process_name,
                 process_num_steps,
+                process_finished,
                 step_id,
                 step_name,
                 step_num,
                 step_description,
+                step_done,
             })
         })?;
 

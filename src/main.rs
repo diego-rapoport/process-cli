@@ -58,6 +58,7 @@ fn generate_cli_steps(steps: usize) -> Vec<Step> {
             name: step_name,
             step_num: n,
             description: step_description,
+            is_done: false,
         };
         array_steps.push(new_step);
     }
@@ -77,6 +78,7 @@ fn main() -> std::result::Result<(), rusqlite::Error> {
                 name,
                 num_steps: steps,
                 steps: generated_steps,
+                is_finished: false,
             };
             conn.save_process(&new_process)?;
         }

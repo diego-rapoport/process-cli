@@ -4,6 +4,7 @@ pub struct Step {
     pub name: String,
     pub step_num: usize,
     pub description: String,
+    pub is_done: bool,
 }
 
 #[derive(Debug)]
@@ -12,6 +13,7 @@ pub struct Process {
     pub name: String,
     pub num_steps: usize,
     pub steps: Vec<Step>,
+    pub is_finished: bool,
 }
 
 impl Process {
@@ -53,8 +55,10 @@ pub struct ParsedInfo {
     pub process_id: usize,
     pub process_name: String,
     pub process_num_steps: usize,
+    pub process_finished: bool,
     pub step_id: usize,
     pub step_name: String,
     pub step_num: usize,
     pub step_description: String,
+    pub step_done: bool,
 }
