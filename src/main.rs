@@ -6,7 +6,7 @@ use clap::{Parser, Subcommand};
 use std::{ffi::OsString, fmt::Error, io};
 
 use db::Db;
-use process::{Step, Process};
+use process::{Process, Step};
 
 pub enum ProcessError {
     NumStepExists,
@@ -33,8 +33,9 @@ enum Commands {
     },
 
     /// List all of the processes already created.
-    List {},
-
+    List { id: Option<usize> },
+    /// List steps from a particular process. Query by id.
+    Steps {id: usize},
 }
 
 fn generate_cli_steps(steps: usize) -> Vec<Step> {
@@ -75,14 +76,26 @@ fn main() -> std::result::Result<(), rusqlite::Error> {
                 id: None,
                 name,
                 num_steps: steps,
-                steps: generated_steps
+                steps: generated_steps,
             };
             conn.save_process(&new_process)?;
         }
-        Commands::List {} => {
-            conn.get_all()
-                .into_iter()
-                .for_each(|process| println!("{:#?}", process));
+        Commands::List { id } => {
+            match id {
+                Some(expr) => {
+                    conn.get_processes_from_id(id.unwrap())
+                        .into_iter()
+                        .for_each(|process| println!("{:#?}", process));
+                }
+                None => {
+                    conn.get_all()
+                        .into_iter()
+                        .for_each(|process| println!("{:#?}", process));
+                }
+            }
+        }
+        Commands::Steps { id } => {
+            conn.get_steps_from_process(id).into_iter().for_each(|step| println!("{:#?}", step))
         }
     }
     Ok(())
