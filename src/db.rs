@@ -61,18 +61,21 @@ impl Db {
 
     pub fn get_steps_from_process(&self, id: usize) -> Result<Vec<Step>, Error> {
         let mut stmt = self.0.prepare(
-            "SELECT id, name, step_num, description, process_id FROM steps WHERE process_id = ?id",
+            "SELECT id, name, step_num, description, process_id FROM steps WHERE process_id = :id",
         )?;
-        stmt.execute(params![id])?;
-        let mut vec_steps: Vec<Step> = vec![];
-        stmt.query_map([], |row| {
-            Ok(vec_steps.push(Step {
+        let steps_iter = stmt.query_map(&[(":id", &id.to_string())], |row| {
+            Ok(Step {
                 id: row.get(0)?,
                 name: row.get(1)?,
                 step_num: row.get(2)?,
                 description: row.get(3)?,
-            }))
+            })
         })?;
+
+        let mut vec_steps: Vec<Step> = vec![];
+        for step in steps_iter {
+            vec_steps.push(step?)
+        }
 
         Ok(vec_steps)
     }
@@ -95,30 +98,24 @@ impl Db {
         Ok(vec_steps)
     }
 
-    pub fn get_all_processes(&self) -> Result<Option<Process>, Error> {
-        let mut stmt = self
+    pub fn get_processes_from_id(&self, id: usize) -> Result<Process, Error> {
+        let mut process = self
             .0
-            .prepare("SELECT id, name, num_steps FROM processes")?;
+            .query_row("SELECT id, name, num_steps FROM processes WHERE id = :id", params![id], |row| { 
+                let id: usize = row.get(0)?;
+                let name: String = row.get(1)?;
+                let num_steps: usize = row.get(2)?;
+                let steps = self.get_steps_from_process(id)?;
+                Ok(Process {
+                    id: Some(id),
+                    name,
+                    num_steps,
+                    steps,
+                })
+            }
+            )?;
 
-        let mut process_iter = stmt.query_map([], |row| {
-            let id = row.get(0)?;
-            println!("ID = {}", id);
-            let name: String = row.get(1)?;
-            let num_steps: usize = row.get(2)?;
-            let steps = self.get_steps_from_process(id)?;
-            Ok(Process {
-                id: Some(id),
-                name,
-                num_steps,
-                steps,
-            })
-        })?;
-
-        if let Some(process) = process_iter.next() {
-            return Ok(Some(process?));
-        } else {
-            Ok(None)
-        }
+        Ok(process)
     }
 
     pub fn get_all(&self) -> Result<Vec<ParsedInfo>, Option<Error>> {
