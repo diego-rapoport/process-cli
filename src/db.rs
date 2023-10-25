@@ -1,6 +1,8 @@
 use rusqlite::{params, Connection, Error, ToSql, config::DbConfig};
 
-use crate::process::{Process, Step, ParsedInfo};
+use crate::step::Step;
+use crate::process::Process;
+use crate::parsed::ParsedInfo;
 
 #[derive(Debug)]
 pub struct Db(Connection);

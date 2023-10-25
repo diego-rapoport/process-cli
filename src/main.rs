@@ -1,12 +1,15 @@
 #![allow(unused)]
 mod db;
 mod process;
+mod step;
+mod parsed;
 
 use clap::{Parser, Subcommand};
 use std::{ffi::OsString, fmt::Error, io};
 
 use db::Db;
-use process::{Process, Step};
+use process::Process;
+use step::Step;
 
 pub enum ProcessError {
     NumStepExists,
@@ -34,8 +37,19 @@ enum Commands {
 
     /// List all of the processes already created.
     List { id: Option<usize> },
+
     /// List steps from a particular process. Query by id.
     Steps {id: usize},
+
+    /// Update a process or step with the respective id.
+    #[group(required = true, multiple = false)]
+    Update {
+        #[arg(short, long)]
+        process: Option<usize>,
+
+        #[arg(short, long)]
+        step: Option<usize>,
+    },
 }
 
 fn generate_cli_steps(steps: usize) -> Vec<Step> {
@@ -82,6 +96,7 @@ fn main() -> std::result::Result<(), rusqlite::Error> {
             };
             conn.save_process(&new_process)?;
         }
+
         Commands::List { id } => {
             match id {
                 Some(expr) => {
@@ -96,9 +111,20 @@ fn main() -> std::result::Result<(), rusqlite::Error> {
                 }
             }
         }
+
         Commands::Steps { id } => {
             conn.get_steps_from_process(id).into_iter().for_each(|step| println!("{:#?}", step))
         }
+
+        Commands::Update { process, step } => {
+            if process.is_some(){
+                println!("Process id = {:?}", process);
+            }
+            if step.is_some() {
+                println!("Step id = {:?}", step);
+
+            }
+        },
     }
     Ok(())
 }
