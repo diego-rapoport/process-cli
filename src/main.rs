@@ -5,7 +5,7 @@ mod step;
 mod parsed;
 mod ui;
 
-use clap::{Parser, Subcommand};
+use clap::{Parser, Subcommand, Args};
 use std::{ffi::OsString, fmt::Error, io};
 
 use db::Db;
@@ -26,7 +26,7 @@ struct Cli {
     command: Commands,
 }
 
-#[derive(Subcommand, Debug)]
+#[derive(Subcommand, Debug )]
 enum Commands {
     /// Create a new process with N number of steps.
     New {
@@ -42,15 +42,25 @@ enum Commands {
     /// List steps from a particular process. Query by id.
     Steps {id: usize},
 
-    /// Update a process or step with the respective id.
-    #[group(required = true, multiple = false)]
-    Update {
-        #[arg(short, long)]
+    /// Update a process or step with the respective id. Only one of the options.
+    // #[group(required = true, multiple = false)]
+    #[command(subcommand)]
+    Update
+}
+
+#[derive(Debug, Args)]
+struct UpdateSub {
+        /// Id of the process
+        #[arg(short, long, group = "type")]
         process: Option<usize>,
 
-        #[arg(short, long)]
+        /// Id of the step
+        #[arg(short, long, group = "type")]
         step: Option<usize>,
-    },
+
+        /// Name of the process/step
+        name: String,
+
 }
 
 fn main() -> std::result::Result<(), rusqlite::Error> {
@@ -89,14 +99,7 @@ fn main() -> std::result::Result<(), rusqlite::Error> {
             conn.get_steps_from_process(id).into_iter().for_each(|step| println!("{:#?}", step))
         }
 
-        Commands::Update { process, step } => {
-            if process.is_some(){
-                println!("Process id = {:?}", process);
-            }
-            if step.is_some() {
-                println!("Step id = {:?}", step);
-
-            }
+        Commands::Update => {
         },
     }
     Ok(())
