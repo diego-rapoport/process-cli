@@ -82,8 +82,8 @@ fn main() -> std::result::Result<(), rusqlite::Error> {
 
         Commands::List { id } => {
             match id {
-                Some(expr) => {
-                    conn.get_processes_from_id(id.unwrap())
+                Some(id) => {
+                    conn.get_processes_from_id(id)
                         .into_iter()
                         .for_each(|process| println!("{:#?}", process));
                 }
