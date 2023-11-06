@@ -42,24 +42,23 @@ enum Commands {
     /// List steps from a particular process. Query by id.
     Steps {id: usize},
 
-    /// Update a process or step with the respective id. Only one of the options.
-    // #[group(required = true, multiple = false)]
-    #[command(subcommand)]
-    Update
+    /// Update a process or step with the respective id
+    Update(UpdateSub),
 }
 
 #[derive(Debug, Args)]
 struct UpdateSub {
-        /// Id of the process
+        /// Id of the process.
         #[arg(short, long, group = "type")]
         process: Option<usize>,
 
-        /// Id of the step
+        /// Id of the step.
         #[arg(short, long, group = "type")]
         step: Option<usize>,
 
-        /// Name of the process/step
-        name: String,
+        /// Name of the process/step to update.
+        #[arg(short, long)]
+        name: Option<String>,
 
 }
 
@@ -99,8 +98,17 @@ fn main() -> std::result::Result<(), rusqlite::Error> {
             conn.get_steps_from_process(id).into_iter().for_each(|step| println!("{:#?}", step))
         }
 
-        Commands::Update => {
+        Commands::Update(update) => {
+            match update {
+                process => {
+                    conn.update_process_name(process.process.unwrap(), process.name.unwrap())
+                },
+                step => {
+                    println!("Its a step")
+                }
+            }
         },
+
     }
     Ok(())
 }
