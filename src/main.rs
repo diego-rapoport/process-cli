@@ -68,8 +68,11 @@ enum UpdateCommands {
         /// Id of the step.
         id: usize,
 
-        /// New name
+        /// New name.
         name: Option<String>,
+
+        /// New description.
+        description: Option<String>,
     },
 }
 
@@ -114,18 +117,22 @@ fn main() -> std::result::Result<(), rusqlite::Error> {
                 UpdateCommands::Process { id, name } => match name {
                     Some(name) => {
                         conn.update_process_name(id, name);
-                        return Ok(())
-                    },
+                        return Ok(());
+                    }
                     None => return Ok(()),
                 },
-                UpdateCommands::Step { id, name } => 
-                   match name {
-                    Some(name) => {
-                        conn.update_step_name(id, name);
-                        return Ok(())
-                    },
-                    None => return Ok(()),
-                },
+                UpdateCommands::Step {
+                    id,
+                    name,
+                    description,
+                } => {
+                    if (name.is_some()) {
+                        conn.update_step_name(id, name.unwrap());
+                    }
+                    if (description.is_some()) {
+                        conn.update_step_description(id, description.unwrap())
+                    }
+                }
             }
         }
     }
