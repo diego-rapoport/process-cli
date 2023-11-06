@@ -101,7 +101,20 @@ fn main() -> std::result::Result<(), rusqlite::Error> {
         Commands::Update(update) => {
             match update {
                 process => {
-                    conn.update_process_name(process.process.unwrap(), process.name.unwrap())
+                    let id = match process.process {
+                        Some(it) => it,
+                        None => {
+                            println!("No id provided!");
+                            return Ok(())},
+                    };
+                    let name = match process.name {
+                        Some(it) => it,
+                        None => {
+                            println!("No name provided!");
+                            return Ok(());
+                        },
+                    };
+                    conn.update_process_name(id, name)
                 },
                 step => {
                     println!("Its a step")
