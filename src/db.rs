@@ -164,26 +164,12 @@ impl Db {
         Ok(infos)
     }
 
-    pub fn update_process(&self, id: usize) -> Result<Process, Error> {
-        let mut process = self.0.query_row(
-            "SELECT id, name, num_steps, is_finished WHERE id = ?1",
-            params![id],
-            |row| {
-                let id = row.get(0)?;
-                let name = row.get(1)?;
-                let num_steps = row.get(2)?;
-                let is_finished = row.get(3)?;
-                let steps = self.get_steps_from_process(id)?;
-                Ok(Process {
-                    id: Some(id),
-                    name,
-                    num_steps,
-                    is_finished,
-                    steps,
-                })
-            },
-        )?;
-
-        Ok(process)
+    pub fn update_process_name(&self, id: usize, name: String) -> (){
+        match self.0.execute(
+            "UPDATE processes SET name = ?1 WHERE id = ?2",
+            params![name, id]) {
+                Ok(updated) => println!("Process succesfully updated!"),
+                Err(err) => println!("Update failed: {}", err)
+            }
     }
 }
