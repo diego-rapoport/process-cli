@@ -172,4 +172,13 @@ impl Db {
                 Err(err) => println!("Update failed: {}", err)
             }
     }
+
+    pub fn update_step_name(&self, id: usize, name: String) -> (){
+        match self.0.execute(
+            "UPDATE steps SET name = ?1 WHERE id = ?2",
+            params![name, id]) {
+                Ok(updated) => println!("Step succesfully updated!"),
+                Err(err) => println!("Update failed: {}", err)
+            }
+    }
 }
