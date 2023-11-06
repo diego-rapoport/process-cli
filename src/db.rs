@@ -16,8 +16,9 @@ impl Db {
             "
             CREATE TABLE IF NOT EXISTS processes (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL UNIQUE,
-                num_steps INTEGER NOT NULL
+                name TEXT NOT NULL,
+                num_steps INTEGER NOT NULL,
+                is_finished DEFAULT false
             );
         ",
             [],
@@ -31,6 +32,7 @@ impl Db {
                 step_num INTEGER NOT NULL,
                 description TEXT,
                 process_id INTEGER,
+                is_done DEFAULT false,
                 FOREIGN KEY(process_id) REFERENCES processes(id)
                     ON UPDATE CASCADE
                     ON DELETE SET NULL
