@@ -1,11 +1,11 @@
 #![allow(unused)]
 mod db;
+mod parsed;
 mod process;
 mod step;
-mod parsed;
 mod ui;
 
-use clap::{Parser, Subcommand, Args};
+use clap::{Args, Parser, Subcommand};
 use std::{ffi::OsString, fmt::Error, io};
 
 use db::Db;
@@ -26,7 +26,7 @@ struct Cli {
     command: Commands,
 }
 
-#[derive(Subcommand, Debug )]
+#[derive(Subcommand, Debug)]
 enum Commands {
     /// Create a new process with N number of steps.
     New {
@@ -40,26 +40,37 @@ enum Commands {
     List { id: Option<usize> },
 
     /// List steps from a particular process. Query by id.
-    Steps {id: usize},
+    Steps { id: usize },
 
     /// Update a process or step with the respective id
     Update(UpdateSub),
 }
 
 #[derive(Debug, Args)]
+#[command(args_conflicts_with_subcommands = true)]
 struct UpdateSub {
+    /// Id of the process.
+    // #[arg(short, long, group = "type")]
+    #[command(subcommand)]
+    update: Option<UpdateCommands>,
+}
+
+#[derive(Debug, Subcommand)]
+enum UpdateCommands {
+    Process {
         /// Id of the process.
-        #[arg(short, long, group = "type")]
-        process: Option<usize>,
+        id: usize,
 
-        /// Id of the step.
-        #[arg(short, long, group = "type")]
-        step: Option<usize>,
-
-        /// Name of the process/step to update.
-        #[arg(short, long)]
+        /// New name
         name: Option<String>,
+    },
+    Step {
+        /// Id of the step.
+        id: usize,
 
+        /// New name
+        name: Option<String>,
+    },
 }
 
 fn main() -> std::result::Result<(), rusqlite::Error> {
@@ -79,49 +90,44 @@ fn main() -> std::result::Result<(), rusqlite::Error> {
             conn.save_process(&new_process)?;
         }
 
-        Commands::List { id } => {
-            match id {
-                Some(id) => {
-                    conn.get_processes_from_id(id)
-                        .into_iter()
-                        .for_each(|process| println!("{:#?}", process));
-                }
-                None => {
-                    conn.get_all()
-                        .into_iter()
-                        .for_each(|process| println!("{:#?}", process));
-                }
+        Commands::List { id } => match id {
+            Some(id) => {
+                conn.get_processes_from_id(id)
+                    .into_iter()
+                    .for_each(|process| println!("{:#?}", process));
             }
-        }
-
-        Commands::Steps { id } => {
-            conn.get_steps_from_process(id).into_iter().for_each(|step| println!("{:#?}", step))
-        }
-
-        Commands::Update(update) => {
-            match update {
-                process => {
-                    let id = match process.process {
-                        Some(it) => it,
-                        None => {
-                            println!("No id provided!");
-                            return Ok(())},
-                    };
-                    let name = match process.name {
-                        Some(it) => it,
-                        None => {
-                            println!("No name provided!");
-                            return Ok(());
-                        },
-                    };
-                    conn.update_process_name(id, name)
-                },
-                step => {
-                    println!("Its a step")
-                }
+            None => {
+                conn.get_all()
+                    .into_iter()
+                    .for_each(|process| println!("{:#?}", process));
             }
         },
 
+        Commands::Steps { id } => conn
+            .get_steps_from_process(id)
+            .into_iter()
+            .for_each(|step| println!("{:#?}", step)),
+
+        Commands::Update(update) => {
+            let update_cmd = update.update.unwrap();
+            match update_cmd {
+                UpdateCommands::Process { id, name } => match name {
+                    Some(name) => {
+                        conn.update_process_name(id, name);
+                        return Ok(())
+                    },
+                    None => return Ok(()),
+                },
+                UpdateCommands::Step { id, name } => 
+                   match name {
+                    Some(name) => {
+                        conn.update_step_name(id, name);
+                        return Ok(())
+                    },
+                    None => return Ok(()),
+                },
+            }
+        }
     }
     Ok(())
 }
