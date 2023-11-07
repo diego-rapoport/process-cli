@@ -1,5 +1,6 @@
 #![allow(unused)]
 mod db;
+mod delete;
 mod done;
 mod parsed;
 mod process;
@@ -8,6 +9,7 @@ mod ui;
 mod update;
 
 use clap::{Args, Parser, Subcommand};
+use delete::DeleteSub;
 use done::{DoneCommands, DoneSub};
 use std::{ffi::OsString, fmt::Error, io};
 
@@ -37,16 +39,22 @@ enum Commands {
     },
 
     /// List all of the processes already created.
-    List { id: Option<usize> },
+    List {
+        id: Option<usize>,
+    },
 
     /// List steps from a particular process. Query by id.
-    Steps { id: usize },
+    Steps {
+        id: usize,
+    },
 
     /// Update a process or step with the respective id.
     Update(UpdateSub),
 
     /// Toggle as done/undone a process or just a step.
     Done(DoneSub),
+
+    Delete(DeleteSub),
 }
 
 fn main() -> std::result::Result<(), rusqlite::Error> {
@@ -109,6 +117,11 @@ fn main() -> std::result::Result<(), rusqlite::Error> {
         Commands::Done(done) => match done.done {
             DoneCommands::Process { id } => conn.toggle_process_done_toggle(id),
             DoneCommands::Step { id } => conn.toggle_process_done_toggle(id),
+        },
+
+        Commands::Delete(delete) => match delete.delete {
+            delete::DeleteCommands::Process { id } => conn.delete_process(id),
+            delete::DeleteCommands::Step { id } => conn.delete_step(id),
         },
     }
     Ok(())

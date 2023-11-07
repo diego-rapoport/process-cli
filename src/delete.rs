@@ -2,14 +2,14 @@ use clap::{Args, Subcommand};
 
 #[derive(Debug, Args)]
 #[command(args_conflicts_with_subcommands = true)]
-pub struct DoneSub {
+pub struct DeleteSub {
     /// Id of the process.
     #[command(subcommand)]
-    pub done: DoneCommands,
+    pub delete: DeleteCommands,
 }
 
 #[derive(Debug, Subcommand)]
-pub enum DoneCommands {
+pub enum DeleteCommands {
     Process {
         /// Id of the process.
         id: usize,

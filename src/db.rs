@@ -164,44 +164,67 @@ impl Db {
         Ok(infos)
     }
 
-    pub fn update_process_name(&self, id: usize, name: String) -> (){
+    pub fn update_process_name(&self, id: usize, name: String) -> () {
         match self.0.execute(
             "UPDATE processes SET name = ?1 WHERE id = ?2",
-            params![name, id]) {
-                Ok(updated) => println!("Process succesfully updated!"),
-                Err(err) => println!("Update failed: {}", err)
-            }
+            params![name, id],
+        ) {
+            Ok(updated) => println!("Process succesfully updated!"),
+            Err(err) => println!("Update failed: {}", err),
+        }
     }
 
-    pub fn update_step_name(&self, id: usize, name: String) -> (){
+    pub fn update_step_name(&self, id: usize, name: String) -> () {
         match self.0.execute(
             "UPDATE steps SET name = ?1 WHERE id = ?2",
-            params![name, id]) {
-                Ok(updated) => println!("Step succesfully updated!"),
-                Err(err) => println!("Update failed: {}", err)
-            }
+            params![name, id],
+        ) {
+            Ok(updated) => println!("Step succesfully updated!"),
+            Err(err) => println!("Update failed: {}", err),
+        }
     }
 
-    pub fn update_step_description(&self, id: usize, description: String) -> (){
+    pub fn update_step_description(&self, id: usize, description: String) -> () {
         match self.0.execute(
             "UPDATE steps SET description = ?1 WHERE id = ?2",
-            params![description, id]) {
-                Ok(updated) => println!("Step succesfully updated!"),
-                Err(err) => println!("Update failed: {}", err)
-            }
+            params![description, id],
+        ) {
+            Ok(updated) => println!("Step succesfully updated!"),
+            Err(err) => println!("Update failed: {}", err),
+        }
     }
 
     pub fn toggle_process_done_toggle(&self, id: usize) {
         match self.0.execute("UPDATE processes SET is_done = (CASE WHEN is_done = 0 THEN 1 ELSE 0 END) WHERE id = ?1;", params![id]) {
-            Ok(updated) => println!("Process toggled sucessfully!"),
+            Ok(updated) => println!("Process toggled successfully!"),
             Err(err) => println!("Toggle failed: {}", err),
         }
     }
 
     pub fn toggle_step_done_toggle(&self, id: usize) {
-        match self.0.execute("UPDATE steps SET is_done = (CASE WHEN is_done = 0 THEN 1 ELSE 0 END) WHERE id = ?1;", params![id]) {
-            Ok(updated) => println!("Step toggled sucessfully!"),
+        match self.0.execute(
+            "UPDATE steps SET is_done = (CASE WHEN is_done = 0 THEN 1 ELSE 0 END) WHERE id = ?1;",
+            params![id],
+        ) {
+            Ok(updated) => println!("Step toggled successfully!"),
             Err(err) => println!("Toggle failed: {}", err),
+        }
+    }
+
+    pub fn delete_process(&self, id: usize) {
+        match self
+            .0
+            .execute("DELETE processes WHERE id = ?1", params![id])
+        {
+            Ok(deleted) => println!("Process deleted successfully!"),
+            Err(err) => println!("Delete failed: {}", err),
+        }
+    }
+
+    pub fn delete_step(&self, id: usize) {
+        match self.0.execute("DELETE steps WHERE id = ?1", params![id]) {
+            Ok(deleted) => println!("Step deleted successfully!"),
+            Err(err) => println!("Delete failed: {}", err),
         }
     }
 }

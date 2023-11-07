@@ -1,6 +1,4 @@
-
 use clap::{Args, Subcommand};
-
 
 #[derive(Debug, Args)]
 #[command(args_conflicts_with_subcommands = true)]
@@ -12,7 +10,6 @@ pub struct UpdateSub {
 
 #[derive(Debug, Subcommand)]
 pub enum UpdateCommands {
-
     Process {
         /// Id of the process.
         id: usize,
@@ -32,5 +29,3 @@ pub enum UpdateCommands {
         description: Option<String>,
     },
 }
-
-
