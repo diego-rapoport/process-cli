@@ -6,7 +6,7 @@ pub struct Process {
     pub name: String,
     pub num_steps: usize,
     pub steps: Vec<Step>,
-    pub is_finished: bool,
+    pub is_done: bool,
 }
 
 impl Process {

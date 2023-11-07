@@ -62,7 +62,7 @@ fn main() -> std::result::Result<(), rusqlite::Error> {
                 name,
                 num_steps: steps,
                 steps: generated_steps,
-                is_finished: false,
+                is_done: false,
             };
             conn.save_process(&new_process)?;
         }
