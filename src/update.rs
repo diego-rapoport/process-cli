@@ -6,7 +6,6 @@ use clap::{Args, Subcommand};
 #[command(args_conflicts_with_subcommands = true)]
 pub struct UpdateSub {
     /// Id of the process.
-    // #[arg(short, long, group = "type")]
     #[command(subcommand)]
     pub update: Option<UpdateCommands>,
 }
