@@ -1,20 +1,20 @@
 #![allow(unused)]
 mod db;
+mod done;
 mod parsed;
 mod process;
 mod step;
 mod ui;
 mod update;
-mod done;
 
 use clap::{Args, Parser, Subcommand};
-use done::{DoneSub, DoneCommands};
+use done::{DoneCommands, DoneSub};
 use std::{ffi::OsString, fmt::Error, io};
 
 use db::Db;
 use process::Process;
 use step::Step;
-use update::{UpdateSub, UpdateCommands};
+use update::{UpdateCommands, UpdateSub};
 
 #[derive(Parser, Debug)]
 // #[command(author, version, about, long_about = None)]
@@ -28,7 +28,6 @@ struct Cli {
 
 #[derive(Subcommand, Debug)]
 enum Commands {
-
     /// Create a new process with N number of steps.
     New {
         /// Name of the process.
@@ -86,37 +85,39 @@ fn main() -> std::result::Result<(), rusqlite::Error> {
             .for_each(|step| println!("{:#?}", step)),
 
         Commands::Update(update) => {
-            let update_cmd = update.update.unwrap();
-            match update_cmd {
-                UpdateCommands::Process { id, name } => match name {
-                    Some(name) => {
-                        conn.update_process_name(id, name);
-                        return Ok(());
-                    }
-                    None => return Ok(()),
-                },
-                UpdateCommands::Step {
-                    id,
-                    name,
-                    description,
-                } => {
-                    if (name.is_some()) {
-                        conn.update_step_name(id, name.unwrap());
-                    }
-                    if (description.is_some()) {
-                        conn.update_step_description(id, description.unwrap())
+            if update.update.is_some() {
+                match update.update.unwrap() {
+                    UpdateCommands::Process { id, name } => match name {
+                        Some(name) => {
+                            conn.update_process_name(id, name);
+                            return Ok(());
+                        }
+                        None => return Ok(()),
+                    },
+                    UpdateCommands::Step {
+                        id,
+                        name,
+                        description,
+                    } => {
+                        if (name.is_some()) {
+                            conn.update_step_name(id, name.unwrap());
+                        }
+                        if (description.is_some()) {
+                            conn.update_step_description(id, description.unwrap())
+                        }
                     }
                 }
             }
         }
 
         Commands::Done(done) => {
-            let done_cmd = done.done.unwrap();
-            match done_cmd {
-                DoneCommands::Process { id } => conn.toggle_process_done_toggle(id),
-                DoneCommands::Step { id } => conn.toggle_process_done_toggle(id),
+            if done.done.is_some() {
+                match done.done.unwrap() {
+                    DoneCommands::Process { id } => conn.toggle_process_done_toggle(id),
+                    DoneCommands::Step { id } => conn.toggle_process_done_toggle(id),
+                }
             }
-        },
+        }
     }
     Ok(())
 }
