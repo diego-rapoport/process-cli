@@ -18,7 +18,7 @@ impl Db {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 num_steps INTEGER NOT NULL,
-                is_finished DEFAULT false
+                is_finished BOOLEAN DEFAULT 0
             );
         ",
             [],
@@ -32,7 +32,7 @@ impl Db {
                 step_num INTEGER NOT NULL,
                 description TEXT,
                 process_id INTEGER,
-                is_done DEFAULT false,
+                is_done BOOLEAN DEFAULT 0,
                 FOREIGN KEY(process_id) REFERENCES processes(id)
                     ON UPDATE CASCADE
                     ON DELETE SET NULL
@@ -191,4 +191,10 @@ impl Db {
             }
     }
 
+    pub fn toggle_process_done(&self, id: usize) {
+        match self.0.execute("UPDATE processes SET is_finished = (CASE WHEN is_finished = 0 THEN 1 ELSE 0 END) WHERE id = 2;", params![id]) {
+            Ok(updated) => println!("Process toggled sucessfully!"),
+            Err(err) => println!("Toggle failed: {}", err),
+        }
+    }
 }
