@@ -12,10 +12,6 @@ use db::Db;
 use process::Process;
 use step::Step;
 
-pub enum ProcessError {
-    NumStepExists,
-}
-
 #[derive(Parser, Debug)]
 // #[command(author, version, about, long_about = None)]
 #[clap(name = "processor")]
@@ -28,6 +24,7 @@ struct Cli {
 
 #[derive(Subcommand, Debug)]
 enum Commands {
+
     /// Create a new process with N number of steps.
     New {
         /// Name of the process.
@@ -57,6 +54,7 @@ struct UpdateSub {
 
 #[derive(Debug, Subcommand)]
 enum UpdateCommands {
+
     Process {
         /// Id of the process.
         id: usize,
@@ -64,6 +62,7 @@ enum UpdateCommands {
         /// New name
         name: Option<String>,
     },
+
     Step {
         /// Id of the step.
         id: usize,
