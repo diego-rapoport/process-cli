@@ -191,9 +191,16 @@ impl Db {
             }
     }
 
-    pub fn toggle_process_done(&self, id: usize) {
-        match self.0.execute("UPDATE processes SET is_finished = (CASE WHEN is_finished = 0 THEN 1 ELSE 0 END) WHERE id = 2;", params![id]) {
+    pub fn toggle_process_done_toggle(&self, id: usize) {
+        match self.0.execute("UPDATE processes SET is_finished = (CASE WHEN is_finished = 0 THEN 1 ELSE 0 END) WHERE id = ?1;", params![id]) {
             Ok(updated) => println!("Process toggled sucessfully!"),
+            Err(err) => println!("Toggle failed: {}", err),
+        }
+    }
+
+    pub fn toggle_step_done_toggle(&self, id: usize) {
+        match self.0.execute("UPDATE steps SET is_done = (CASE WHEN is_done = 0 THEN 1 ELSE 0 END) WHERE id = ?1;", params![id]) {
+            Ok(updated) => println!("Step toggled sucessfully!"),
             Err(err) => println!("Toggle failed: {}", err),
         }
     }

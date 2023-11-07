@@ -5,8 +5,10 @@ mod process;
 mod step;
 mod ui;
 mod update;
+mod done;
 
 use clap::{Args, Parser, Subcommand};
+use done::{DoneSub, DoneCommands};
 use std::{ffi::OsString, fmt::Error, io};
 
 use db::Db;
@@ -41,8 +43,11 @@ enum Commands {
     /// List steps from a particular process. Query by id.
     Steps { id: usize },
 
-    /// Update a process or step with the respective id
+    /// Update a process or step with the respective id.
     Update(UpdateSub),
+
+    /// Toggle as done/undone a process or just a step.
+    Done(DoneSub),
 }
 
 fn main() -> std::result::Result<(), rusqlite::Error> {
@@ -104,6 +109,14 @@ fn main() -> std::result::Result<(), rusqlite::Error> {
                 }
             }
         }
+
+        Commands::Done(done) => {
+            let done_cmd = done.done.unwrap();
+            match done_cmd {
+                DoneCommands::Process { id } => todo!(),
+                DoneCommands::Step { id } => todo!(),
+            }
+        },
     }
     Ok(())
 }
