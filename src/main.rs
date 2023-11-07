@@ -4,6 +4,7 @@ mod parsed;
 mod process;
 mod step;
 mod ui;
+mod update;
 
 use clap::{Args, Parser, Subcommand};
 use std::{ffi::OsString, fmt::Error, io};
@@ -11,6 +12,7 @@ use std::{ffi::OsString, fmt::Error, io};
 use db::Db;
 use process::Process;
 use step::Step;
+use update::{UpdateSub, UpdateCommands};
 
 #[derive(Parser, Debug)]
 // #[command(author, version, about, long_about = None)]
@@ -41,38 +43,6 @@ enum Commands {
 
     /// Update a process or step with the respective id
     Update(UpdateSub),
-}
-
-#[derive(Debug, Args)]
-#[command(args_conflicts_with_subcommands = true)]
-struct UpdateSub {
-    /// Id of the process.
-    // #[arg(short, long, group = "type")]
-    #[command(subcommand)]
-    update: Option<UpdateCommands>,
-}
-
-#[derive(Debug, Subcommand)]
-enum UpdateCommands {
-
-    Process {
-        /// Id of the process.
-        id: usize,
-
-        /// New name
-        name: Option<String>,
-    },
-
-    Step {
-        /// Id of the step.
-        id: usize,
-
-        /// New name.
-        name: Option<String>,
-
-        /// New description.
-        description: Option<String>,
-    },
 }
 
 fn main() -> std::result::Result<(), rusqlite::Error> {
