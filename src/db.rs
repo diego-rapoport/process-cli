@@ -18,7 +18,7 @@ impl Db {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 num_steps INTEGER NOT NULL,
-                is_finished BOOLEAN DEFAULT 0
+                is_done BOOLEAN DEFAULT 0
             );
         ",
             [],
@@ -106,20 +106,20 @@ impl Db {
 
     pub fn get_processes_from_id(&self, id: usize) -> Result<Process, Error> {
         let mut process = self.0.query_row(
-            "SELECT id, name, num_steps, is_finished FROM processes WHERE id = :id",
+            "SELECT id, name, num_steps, is_done FROM processes WHERE id = :id",
             params![id],
             |row| {
                 let id: usize = row.get(0)?;
                 let name: String = row.get(1)?;
                 let num_steps: usize = row.get(2)?;
                 let steps = self.get_steps_from_process(id)?;
-                let is_finished: bool = row.get(3)?;
+                let is_done: bool = row.get(3)?;
                 Ok(Process {
                     id: Some(id),
                     name,
                     num_steps,
                     steps,
-                    is_finished,
+                    is_done,
                 })
             },
         )?;
@@ -129,7 +129,7 @@ impl Db {
 
     pub fn get_all(&self) -> Result<Vec<ParsedInfo>, Option<Error>> {
         let mut stmt = self.0.prepare("
-            SELECT processes.id as process_id, processes.name as process_name, processes.num_steps as process_num_steps, processes.is_finished as process_finished,
+            SELECT processes.id as process_id, processes.name as process_name, processes.num_steps as process_num_steps, processes.is_done as process_done,
             steps.id as step_id, steps.name as step_name, steps.step_num as step_num, steps.description as step_description, steps.is_done as step_done
             FROM processes INNER JOIN steps ON processes.id = steps.process_id")?;
 
@@ -137,7 +137,7 @@ impl Db {
             let process_id = row.get(0)?;
             let process_name = row.get(1)?;
             let process_num_steps = row.get(2)?;
-            let process_finished = row.get(3)?;
+            let process_done = row.get(3)?;
             let step_id = row.get(4)?;
             let step_name = row.get(5)?;
             let step_num = row.get(6)?;
@@ -147,7 +147,7 @@ impl Db {
                 process_id,
                 process_name,
                 process_num_steps,
-                process_finished,
+                process_done,
                 step_id,
                 step_name,
                 step_num,
@@ -192,7 +192,7 @@ impl Db {
     }
 
     pub fn toggle_process_done_toggle(&self, id: usize) {
-        match self.0.execute("UPDATE processes SET is_finished = (CASE WHEN is_finished = 0 THEN 1 ELSE 0 END) WHERE id = ?1;", params![id]) {
+        match self.0.execute("UPDATE processes SET is_done = (CASE WHEN is_done = 0 THEN 1 ELSE 0 END) WHERE id = ?1;", params![id]) {
             Ok(updated) => println!("Process toggled sucessfully!"),
             Err(err) => println!("Toggle failed: {}", err),
         }
