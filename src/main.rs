@@ -113,8 +113,8 @@ fn main() -> std::result::Result<(), rusqlite::Error> {
         Commands::Done(done) => {
             let done_cmd = done.done.unwrap();
             match done_cmd {
-                DoneCommands::Process { id } => todo!(),
-                DoneCommands::Step { id } => todo!(),
+                DoneCommands::Process { id } => conn.toggle_process_done_toggle(id),
+                DoneCommands::Step { id } => conn.toggle_process_done_toggle(id),
             }
         },
     }
