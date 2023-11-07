@@ -7,7 +7,7 @@ use clap::{Args, Subcommand};
 pub struct UpdateSub {
     /// Id of the process.
     #[command(subcommand)]
-    pub update: Option<UpdateCommands>,
+    pub update: UpdateCommands,
 }
 
 #[derive(Debug, Subcommand)]

@@ -6,7 +6,7 @@ use clap::{Args, Subcommand};
 pub struct DoneSub {
     /// Id of the process.
     #[command(subcommand)]
-    pub done: Option<DoneCommands>,
+    pub done: DoneCommands,
 }
 
 #[derive(Debug, Subcommand)]

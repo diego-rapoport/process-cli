@@ -29,5 +29,3 @@ pub fn generate_cli_steps(steps: usize) -> Vec<Step> {
 
     array_steps
 }
-
-

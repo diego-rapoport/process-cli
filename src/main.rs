@@ -84,40 +84,32 @@ fn main() -> std::result::Result<(), rusqlite::Error> {
             .into_iter()
             .for_each(|step| println!("{:#?}", step)),
 
-        Commands::Update(update) => {
-            if update.update.is_some() {
-                match update.update.unwrap() {
-                    UpdateCommands::Process { id, name } => match name {
-                        Some(name) => {
-                            conn.update_process_name(id, name);
-                            return Ok(());
-                        }
-                        None => return Ok(()),
-                    },
-                    UpdateCommands::Step {
-                        id,
-                        name,
-                        description,
-                    } => {
-                        if (name.is_some()) {
-                            conn.update_step_name(id, name.unwrap());
-                        }
-                        if (description.is_some()) {
-                            conn.update_step_description(id, description.unwrap())
-                        }
-                    }
+        Commands::Update(update) => match update.update {
+            UpdateCommands::Process { id, name } => match name {
+                Some(name) => {
+                    conn.update_process_name(id, name);
+                    return Ok(());
+                }
+                None => return Ok(()),
+            },
+            UpdateCommands::Step {
+                id,
+                name,
+                description,
+            } => {
+                if (name.is_some()) {
+                    conn.update_step_name(id, name.unwrap());
+                }
+                if (description.is_some()) {
+                    conn.update_step_description(id, description.unwrap())
                 }
             }
-        }
+        },
 
-        Commands::Done(done) => {
-            if done.done.is_some() {
-                match done.done.unwrap() {
-                    DoneCommands::Process { id } => conn.toggle_process_done_toggle(id),
-                    DoneCommands::Step { id } => conn.toggle_process_done_toggle(id),
-                }
-            }
-        }
+        Commands::Done(done) => match done.done {
+            DoneCommands::Process { id } => conn.toggle_process_done_toggle(id),
+            DoneCommands::Step { id } => conn.toggle_process_done_toggle(id),
+        },
     }
     Ok(())
 }
