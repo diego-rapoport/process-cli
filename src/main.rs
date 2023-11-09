@@ -9,7 +9,7 @@ mod ui;
 mod update;
 
 use clap::{Args, Parser, Subcommand};
-use delete::DeleteSub;
+use delete::{DeleteSub, DeleteCommands};
 use done::{ToggleCommands, ToggleSub};
 use std::{ffi::OsString, fmt::Error, io};
 
@@ -120,8 +120,8 @@ fn main() -> std::result::Result<(), rusqlite::Error> {
         },
 
         Commands::Delete(delete) => match delete.delete {
-            delete::DeleteCommands::Process { id } => conn.delete_process(id),
-            delete::DeleteCommands::Step { id } => conn.delete_step(id),
+            DeleteCommands::Process { id } => conn.delete_process(id),
+            DeleteCommands::Step { id } => conn.delete_step(id),
         },
     }
     Ok(())
