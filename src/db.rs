@@ -216,7 +216,7 @@ impl Db {
     pub fn delete_process(&self, id: usize) {
         match self
             .0
-            .execute("DELETE processes WHERE id = ?1", params![id])
+            .execute("DELETE FROM processes WHERE id = ?1", params![id])
         {
             Ok(deleted) => println!("Process deleted successfully!"),
             Err(err) => println!("Delete failed: {}", err),
@@ -224,7 +224,7 @@ impl Db {
     }
 
     pub fn delete_step(&self, id: usize) {
-        match self.0.execute("DELETE steps WHERE id = ?1", params![id]) {
+        match self.0.execute("DELETE FROM steps WHERE id = ?1", params![id]) {
             Ok(deleted) => println!("Step deleted successfully!"),
             Err(err) => println!("Delete failed: {}", err),
         }
