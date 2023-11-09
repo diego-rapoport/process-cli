@@ -10,7 +10,7 @@ mod update;
 
 use clap::{Args, Parser, Subcommand};
 use delete::DeleteSub;
-use done::{DoneCommands, DoneSub};
+use done::{ToggleCommands, ToggleSub};
 use std::{ffi::OsString, fmt::Error, io};
 
 use db::Db;
@@ -51,7 +51,7 @@ enum Commands {
     Update(UpdateSub),
 
     /// Toggle as done/undone a process or just a step.
-    Done(DoneSub),
+    Toggle(ToggleSub),
 
     Delete(DeleteSub),
 }
@@ -113,9 +113,9 @@ fn main() -> std::result::Result<(), rusqlite::Error> {
             }
         },
 
-        Commands::Done(done) => match done.done {
-            DoneCommands::Process { id } => conn.toggle_process_done_toggle(id),
-            DoneCommands::Step { id } => conn.toggle_step_done_toggle(id),
+        Commands::Toggle(done) => match done.done {
+            ToggleCommands::Process { id } => conn.toggle_process_done_toggle(id),
+            ToggleCommands::Step { id } => conn.toggle_step_done_toggle(id),
         },
 
         Commands::Delete(delete) => match delete.delete {
