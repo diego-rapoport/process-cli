@@ -19,7 +19,6 @@ use step::Step;
 use update::{UpdateCommands, UpdateSub};
 
 #[derive(Parser, Debug)]
-// #[command(author, version, about, long_about = None)]
 #[clap(name = "processor")]
 #[clap(about = "Create, view and mutate processes with multiple and changable steps.")]
 #[clap(version = "1.0")]
