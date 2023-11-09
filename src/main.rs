@@ -115,7 +115,7 @@ fn main() -> std::result::Result<(), rusqlite::Error> {
 
         Commands::Done(done) => match done.done {
             DoneCommands::Process { id } => conn.toggle_process_done_toggle(id),
-            DoneCommands::Step { id } => conn.toggle_process_done_toggle(id),
+            DoneCommands::Step { id } => conn.toggle_step_done_toggle(id),
         },
 
         Commands::Delete(delete) => match delete.delete {
