@@ -8,10 +8,13 @@ mod step;
 mod ui;
 mod update;
 
+use axum::response::Html;
+use axum::routing::get;
+use axum::Router;
 use clap::{Args, Parser, Subcommand};
-use delete::{DeleteSub, DeleteCommands};
+use delete::{DeleteCommands, DeleteSub};
 use done::{ToggleCommands, ToggleSub};
-use std::{ffi::OsString, fmt::Error, io};
+use std::{ffi::OsString, fmt::Error, io, net::SocketAddr};
 
 use db::Db;
 use process::Process;
@@ -38,14 +41,10 @@ enum Commands {
     },
 
     /// List all of the processes already created.
-    List {
-        id: Option<usize>,
-    },
+    List { id: Option<usize> },
 
     /// List steps from a particular process. Query by id.
-    Steps {
-        id: usize,
-    },
+    Steps { id: usize },
 
     /// Update a process or step with the respective id.
     Update(UpdateSub),
@@ -55,9 +54,13 @@ enum Commands {
 
     /// Delete a process or a single step.
     Delete(DeleteSub),
+
+    /// Opens the backend service
+    Backend,
 }
 
-fn main() -> std::result::Result<(), rusqlite::Error> {
+#[tokio::main]
+async fn main() -> std::result::Result<(), rusqlite::Error> {
     let conn = Db::open()?;
     let args = Cli::parse();
 
@@ -123,6 +126,20 @@ fn main() -> std::result::Result<(), rusqlite::Error> {
             DeleteCommands::Process { id } => conn.delete_process(id),
             DeleteCommands::Step { id } => conn.delete_step(id),
         },
+        Commands::Backend => {
+            println!("Backend UP!");
+            let route_hello = Router::new().route(
+                "/hello",
+                get(|| async { Html("Hello <strong>World</strong>!") }),
+            );
+
+            let addr = SocketAddr::from(([127, 0, 0, 1], 3030));
+            println!("->> Listening on {addr}\n");
+            axum::Server::bind(&addr)
+                .serve(route_hello.into_make_service())
+                .await
+                .unwrap();
+        }
     }
     Ok(())
 }
