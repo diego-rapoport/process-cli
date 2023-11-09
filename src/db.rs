@@ -46,20 +46,22 @@ impl Db {
 
     pub fn save_process(&self, process: &Process) -> Result<(), Error> {
         self.0.execute(
-            "INSERT OR REPLACE INTO processes (id, name, num_steps) VALUES (?1, ?2, ?3)",
-            params![process.id, process.name, process.num_steps],
+            "INSERT INTO processes (name, num_steps) VALUES (?1, ?2)",
+            params![process.name, process.num_steps],
         )?;
 
+        let process_id = self.0.last_insert_rowid().try_into().unwrap();
+        println!("Process id got: {}", process_id);
         for step in process.steps.clone().into_iter() {
-            self.save_step(&step, self.0.last_insert_rowid().try_into().unwrap());
+            self.save_step(&step, process_id);
         }
 
         Ok(())
     }
 
     pub fn save_step(&self, step: &Step, process_id: usize) -> Result<(), Error> {
-        self.0.execute("INSERT OR REPLACE INTO steps (id, name, step_num, description, process_id) VALUES (?1, ?2, ?3, ?4, ?5)",
-            params![step.id, step.name, step.step_num, step.description, process_id])?;
+        self.0.execute("INSERT INTO steps (name, step_num, description, process_id) VALUES (?1, ?2, ?3, ?4)",
+            params![step.name, step.step_num, step.description, process_id])?;
         Ok(())
     }
 
@@ -106,7 +108,7 @@ impl Db {
 
     pub fn get_processes_from_id(&self, id: usize) -> Result<Process, Error> {
         let mut process = self.0.query_row(
-            "SELECT id, name, num_steps, is_done FROM processes WHERE id = :id",
+            "SELECT id, name, num_steps, is_done FROM processes WHERE id = ?1",
             params![id],
             |row| {
                 let id: usize = row.get(0)?;
