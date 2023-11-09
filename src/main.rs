@@ -53,6 +53,7 @@ enum Commands {
     /// Toggle as done/undone a process or just a step.
     Toggle(ToggleSub),
 
+    /// Delete a process or a single step.
     Delete(DeleteSub),
 }
 
