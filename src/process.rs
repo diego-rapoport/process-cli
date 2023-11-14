@@ -1,6 +1,13 @@
 use crate::step::Step;
+use serde::{Serialize, Deserialize};
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Serialize)]
+pub struct CreateProcess {
+    pub name: String,
+    pub num_steps: usize,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Process {
     pub id: Option<usize>,
     pub name: String,
